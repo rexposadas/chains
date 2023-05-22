@@ -4,6 +4,7 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
+	"github.com/rexposadas/chains/models"
 	"io"
 	"log"
 	"net/http"
@@ -17,24 +18,10 @@ import (
 	"github.com/joho/godotenv"
 )
 
-// Block represents each 'item' in the blockchain
-type Block struct {
-	Index     int
-	Timestamp string
-	BPM       int
-	Hash      string
-	PrevHash  string
-}
+var mutex = &sync.Mutex{}
 
 // Blockchain is a series of validated Blocks
-var Blockchain []Block
-
-// Message takes incoming JSON payload for writing heart rate
-type Message struct {
-	BPM int
-}
-
-var mutex = &sync.Mutex{}
+var Blockchain []models.Block
 
 func main() {
 	err := godotenv.Load()
@@ -44,8 +31,8 @@ func main() {
 
 	go func() {
 		t := time.Now()
-		genesisBlock := Block{}
-		genesisBlock = Block{0, t.String(), 0, calculateHash(genesisBlock), ""}
+		genesisBlock := models.Block{}
+		genesisBlock = models.Block{0, t.String(), 0, calculateHash(genesisBlock), ""}
 		spew.Dump(genesisBlock)
 
 		mutex.Lock()
@@ -97,7 +84,7 @@ func handleGetBlockchain(w http.ResponseWriter, r *http.Request) {
 // takes JSON payload as an input for heart rate (BPM)
 func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	var msg Message
+	var msg models.Message
 
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&msg); err != nil {
@@ -132,7 +119,7 @@ func respondWithJSON(w http.ResponseWriter, r *http.Request, code int, payload i
 }
 
 // make sure block is valid by checking index, and comparing the hash of the previous block
-func isBlockValid(newBlock, oldBlock Block) bool {
+func isBlockValid(newBlock, oldBlock models.Block) bool {
 	if oldBlock.Index+1 != newBlock.Index {
 		return false
 	}
@@ -149,7 +136,7 @@ func isBlockValid(newBlock, oldBlock Block) bool {
 }
 
 // SHA256 hasing
-func calculateHash(block Block) string {
+func calculateHash(block models.Block) string {
 	record := strconv.Itoa(block.Index) + block.Timestamp + strconv.Itoa(block.BPM) + block.PrevHash
 	h := sha256.New()
 	h.Write([]byte(record))
@@ -158,9 +145,8 @@ func calculateHash(block Block) string {
 }
 
 // create a new block using previous block's hash
-func generateBlock(oldBlock Block, BPM int) Block {
-
-	var newBlock Block
+func generateBlock(oldBlock models.Block, BPM int) models.Block {
+	var newBlock models.Block
 
 	t := time.Now()
 
