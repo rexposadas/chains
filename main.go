@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/rexposadas/chains/models"
 	"log"
 	"sync"
 	"time"
@@ -11,7 +12,7 @@ import (
 
 var mutex = &sync.Mutex{}
 
-var Blockchain []Block
+var Blockchain []models.Block
 
 func main() {
 	err := godotenv.Load()
@@ -21,8 +22,8 @@ func main() {
 
 	go func() {
 		t := time.Now()
-		genesisBlock := Block{}
-		genesisBlock = Block{0, t.String(), 0, calculateHash(genesisBlock), ""}
+		genesisBlock := models.Block{}
+		genesisBlock = models.Block{0, t.String(), 0, models.CalculateHash(genesisBlock), ""}
 		spew.Dump(genesisBlock)
 
 		mutex.Lock()

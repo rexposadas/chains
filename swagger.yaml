@@ -1,0 +1,38 @@
+---
+swagger: "2.0"
+info:
+  description: Chains API
+  title: Chains API
+  version: 1.0.0
+produces:
+  - application/json
+consumes:
+  - application/json
+paths:
+  /block:
+    get:
+      responses:
+        200:
+          description: get list of blocks
+
+schemes:
+  - http
+definitions:
+  message:
+    type: object
+    properties:
+      bpm:
+        type: integer
+  block:
+    type: object
+    properties:
+      index:
+        type: integer
+      timestamp:
+        type: string
+      bpm:
+        type: integer
+      hash:
+        type: string
+      prevHash:
+        type: string

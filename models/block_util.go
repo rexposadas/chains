@@ -1,22 +1,13 @@
-package main
+package models
 
 import (
 	"crypto/sha256"
 	"encoding/hex"
-	"strconv"
+	"fmt"
 	"time"
 )
 
-// Block represents each 'item' in the blockchain
-type Block struct {
-	Index     int
-	Timestamp string
-	BPM       int
-	Hash      string
-	PrevHash  string
-}
-
-func GenerateBlock(oldBlock Block, BPM int) Block {
+func GenerateBlock(oldBlock Block, BPM int64) Block {
 
 	var newBlock Block
 
@@ -24,16 +15,16 @@ func GenerateBlock(oldBlock Block, BPM int) Block {
 
 	newBlock.Index = oldBlock.Index + 1
 	newBlock.Timestamp = t.String()
-	newBlock.BPM = BPM
+	newBlock.Bpm = BPM
 	newBlock.PrevHash = oldBlock.Hash
-	newBlock.Hash = calculateHash(newBlock)
+	newBlock.Hash = CalculateHash(newBlock)
 
 	return newBlock
 }
 
 // SHA256 hasing
-func calculateHash(block Block) string {
-	record := strconv.Itoa(block.Index) + block.Timestamp + strconv.Itoa(block.BPM) + block.PrevHash
+func CalculateHash(block Block) string {
+	record := fmt.Sprintf("%d%s%d%s", block.Index, block.Timestamp, block.Bpm, block.PrevHash)
 	h := sha256.New()
 	h.Write([]byte(record))
 	hashed := h.Sum(nil)
@@ -41,7 +32,7 @@ func calculateHash(block Block) string {
 }
 
 // make sure block is valid by checking index, and comparing the hash of the previous block
-func isBlockValid(newBlock, oldBlock Block) bool {
+func IsBlockValid(newBlock, oldBlock Block) bool {
 	if oldBlock.Index+1 != newBlock.Index {
 		return false
 	}
@@ -50,7 +41,7 @@ func isBlockValid(newBlock, oldBlock Block) bool {
 		return false
 	}
 
-	if calculateHash(newBlock) != newBlock.Hash {
+	if CalculateHash(newBlock) != newBlock.Hash {
 		return false
 	}
 

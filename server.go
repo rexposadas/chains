@@ -4,17 +4,13 @@ import (
 	"encoding/json"
 	"github.com/davecgh/go-spew/spew"
 	"github.com/gorilla/mux"
+	"github.com/rexposadas/chains/models"
 	"io"
 	"log"
 	"net/http"
 	"os"
 	"time"
 )
-
-// Message takes incoming JSON payload for writing heart rate
-type Message struct {
-	BPM int
-}
 
 // web server
 func run() error {
@@ -57,7 +53,7 @@ func handleGetBlockchain(w http.ResponseWriter, r *http.Request) {
 // takes JSON payload as an input for heart rate (BPM)
 func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
-	var msg Message
+	var msg models.Message
 
 	decoder := json.NewDecoder(r.Body)
 	if err := decoder.Decode(&msg); err != nil {
@@ -68,9 +64,9 @@ func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
 
 	mutex.Lock()
 	prevBlock := Blockchain[len(Blockchain)-1]
-	newBlock := GenerateBlock(prevBlock, msg.BPM)
+	newBlock := models.GenerateBlock(prevBlock, msg.Bpm)
 
-	if isBlockValid(newBlock, prevBlock) {
+	if models.IsBlockValid(newBlock, prevBlock) {
 		Blockchain = append(Blockchain, newBlock)
 		spew.Dump(Blockchain)
 	}
