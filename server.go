@@ -11,6 +11,11 @@ import (
 	"time"
 )
 
+// Message takes incoming JSON payload for writing heart rate
+type Message struct {
+	BPM int
+}
+
 // web server
 func run() error {
 	mux := makeMuxRouter()
