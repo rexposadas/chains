@@ -4,6 +4,9 @@ install:
 run: install
 	/tmp/chains
 
+# TODO: Tirso : Add target to run the tests
+
+
 swagger_validate:
 	swagger validate ./swagger.yaml
 
