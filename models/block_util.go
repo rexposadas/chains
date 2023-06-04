@@ -22,7 +22,7 @@ func GenerateBlock(oldBlock Block, BPM int64) Block {
 	return newBlock
 }
 
-// SHA256 hasing
+// CalculateHash computes the hash for every block.
 func CalculateHash(block Block) string {
 	record := fmt.Sprintf("%d%s%d%s", block.Index, block.Timestamp, block.Bpm, block.PrevHash)
 	h := sha256.New()
